@@ -1,0 +1,75 @@
+@model FoodOrder.Web.Models.RegisterVm
+@{ Layout = null; ViewData["Title"] = "Register"; }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Join Free – QuickBite</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <style>
+        body{background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);min-height:100vh;}
+        .auth-card{border-radius:20px;box-shadow:0 25px 60px rgba(0,0,0,.45);}
+        .form-control{border-radius:10px;padding:.7rem 1rem;border:2px solid #e9ecef;}
+        .form-control:focus{border-color:#f97316;box-shadow:0 0 0 .2rem rgba(249,115,22,.15);}
+        .btn-sign{background:linear-gradient(135deg,#f97316,#ef4444);border:none;border-radius:10px;padding:.75rem;font-weight:600;}
+    </style>
+</head>
+<body class="d-flex align-items-center py-4">
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="auth-card bg-white p-5">
+                <div class="text-center mb-4">
+                    <div class="fs-3 fw-bold" style="color:#ef4444"><i class="bi bi-basket2-fill me-2"></i>QuickBite</div>
+                    <h4 class="fw-bold mt-2 mb-1">Create your account</h4>
+                    <p class="text-muted small">Start ordering from the best restaurants</p>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Error))
+                {
+                    <div class="alert alert-danger rounded-3"><i class="bi bi-exclamation-triangle me-2"></i>@Model.Error</div>
+                }
+                <form asp-action="Register" method="post">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="FirstName" class="form-label fw-semibold">First Name</label>
+                            <input asp-for="FirstName" class="form-control" placeholder="Rahul"/>
+                            <span asp-validation-for="FirstName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="LastName" class="form-label fw-semibold">Last Name</label>
+                            <input asp-for="LastName" class="form-control" placeholder="Sharma"/>
+                            <span asp-validation-for="LastName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Email" class="form-label fw-semibold">Email</label>
+                            <input asp-for="Email" class="form-control" placeholder="you@email.com"/>
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Password" class="form-label fw-semibold">Password</label>
+                            <input asp-for="Password" type="password" class="form-control" placeholder="Min 6 chars"/>
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Phone" class="form-label fw-semibold">Phone</label>
+                            <input asp-for="Phone" class="form-control" placeholder="+91 900 000 0000"/>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Address" class="form-label fw-semibold">Default Address</label>
+                            <input asp-for="Address" class="form-control" placeholder="Your delivery address"/>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-sign text-white w-100 mt-4">
+                        <i class="bi bi-person-plus me-2"></i>Create Account
+                    </button>
+                </form>
+                <p class="text-center text-muted small mt-3 mb-0">
+                    Already a member? <a asp-controller="Auth" asp-action="Login" class="text-danger fw-semibold text-decoration-none">Sign in</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body></html>

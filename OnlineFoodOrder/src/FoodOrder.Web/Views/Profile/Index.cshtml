@@ -1,0 +1,46 @@
+@* ── Profile/Index ─────────────────────────────────────────────────────── *@
+@model FoodOrder.Web.Helper.ProfileVm
+@{ ViewData["Title"] = "My Profile"; }
+<div class="container py-4">
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm text-center p-4">
+                <div class="avatar-xl mx-auto mb-3">@Model.FullName[0]</div>
+                <h5 class="fw-bold mb-1">@Model.FullName</h5>
+                <p class="text-muted small mb-2">@Model.Email</p>
+                <span class="badge bg-danger px-3 py-2 mb-3">@Model.Role</span>
+                <hr/>
+                <div class="text-start small">
+                    <div class="mb-2"><i class="bi bi-telephone text-danger me-2"></i>@(string.IsNullOrEmpty(Model.Phone)?"Not set":Model.Phone)</div>
+                    <div><i class="bi bi-geo-alt text-danger me-2"></i>@(string.IsNullOrEmpty(Model.Address)?"No address":Model.Address)</div>
+                </div>
+                <div class="d-grid gap-2 mt-3">
+                    <a asp-action="Edit" class="btn btn-danger"><i class="bi bi-pencil me-2"></i>Edit Profile</a>
+                    <a asp-action="ChangePassword" class="btn btn-outline-secondary"><i class="bi bi-shield-lock me-2"></i>Change Password</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <h4 class="fw-bold mb-3">Quick Links</h4>
+            <div class="row g-3">
+                @foreach (var (ctrl, act, icon, title, desc, color) in new[]{
+                    ("Order","MyOrders","bi-bag","My Orders","View all past orders","danger"),
+                    ("Payment","History","bi-credit-card","Payments","View transactions","success"),
+                    ("Profile","Edit","bi-person-gear","Edit Profile","Update details","primary"),
+                    ("Profile","ChangePassword","bi-shield-lock","Change Password","Update password","warning")})
+                {
+                    <div class="col-md-6">
+                        <a asp-controller="@ctrl" asp-action="@act" class="card border-0 shadow-sm text-decoration-none h-100">
+                            <div class="card-body d-flex align-items-center gap-3">
+                                <div class="p-3 rounded-3 bg-@color bg-opacity-10"><i class="bi @icon fs-4 text-@color"></i></div>
+                                <div><div class="fw-semibold text-dark">@title</div><div class="text-muted small">@desc</div></div>
+                                <i class="bi bi-arrow-right ms-auto text-muted"></i>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {<style>.avatar-xl{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#f97316,#ef4444);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:2rem;}</style>}

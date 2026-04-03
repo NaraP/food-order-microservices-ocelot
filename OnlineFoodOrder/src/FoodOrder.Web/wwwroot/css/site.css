@@ -1,0 +1,91 @@
+/* ── Global ────────────────────────────────────────────────────────────── */
+body { background: #f8f9fb; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+/* ── Navbar ────────────────────────────────────────────────────────────── */
+#topNav { background: linear-gradient(135deg,#1a1a2e,#16213e); box-shadow:0 2px 20px rgba(0,0,0,.35); }
+
+/* ── Hero ──────────────────────────────────────────────────────────────── */
+.hero-banner { background:linear-gradient(135deg,#1a1a2e 0%,#0f3460 60%,#e94560 100%); }
+
+/* ── Avatar ────────────────────────────────────────────────────────────── */
+.avatar-xs {
+    width:30px;height:30px;border-radius:50%;
+    background:linear-gradient(135deg,#f97316,#ef4444);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:700;font-size:.8rem;flex-shrink:0;
+}
+
+/* ── Cuisine pills ─────────────────────────────────────────────────────── */
+.pill-tag {
+    display:inline-block;padding:.4rem 1.1rem;
+    border-radius:50px;font-size:.82rem;font-weight:600;
+    background:#fff;color:#374151;border:2px solid #e5e7eb;
+    text-decoration:none;transition:all .2s;
+}
+.pill-tag:hover,.pill-tag.active { background:#ef4444;color:#fff;border-color:#ef4444; }
+
+/* ── Restaurant cards ──────────────────────────────────────────────────── */
+.resto-card { border-radius:14px!important;overflow:hidden;transition:transform .2s,box-shadow .2s;color:inherit; }
+.resto-card:hover { transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.12)!important; }
+.resto-img  {
+    height:160px;display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;
+}
+.closed-tag {
+    position:absolute;inset:0;background:rgba(0,0,0,.6);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:800;font-size:1.4rem;letter-spacing:2px;
+}
+.cuisine-tag {
+    position:absolute;bottom:8px;left:8px;
+    background:rgba(0,0,0,.55);color:#fff;border-radius:50px;
+    padding:.2rem .7rem;font-size:.72rem;font-weight:600;backdrop-filter:blur(4px);
+}
+
+/* ── Restaurant header ─────────────────────────────────────────────────── */
+.resto-header { min-height:160px; }
+.resto-logo {
+    width:68px;height:68px;border-radius:14px;
+    background:rgba(255,255,255,.25);backdrop-filter:blur(8px);
+    display:flex;align-items:center;justify-content:center;
+    font-size:2.2rem;font-weight:800;color:#fff;flex-shrink:0;
+}
+
+/* ── Menu cards ────────────────────────────────────────────────────────── */
+.menu-card { transition:box-shadow .15s; }
+.menu-card:hover { box-shadow:0 4px 16px rgba(0,0,0,.1); }
+.veg-dot { width:14px;height:14px;border-radius:2px; }
+.veg-dot.veg    { background:#16a34a;border:2px solid #16a34a; }
+.veg-dot.nonveg { background:#dc2626;border:2px solid #dc2626; }
+.tag-pill { background:#f3f4f6;color:#6b7280;border-radius:50px;padding:.1rem .5rem;font-size:.68rem;font-weight:500; }
+
+/* ── Category tabs ─────────────────────────────────────────────────────── */
+.cat-link { background:#f3f4f6;color:#374151;font-weight:600;font-size:.85rem; }
+.cat-link.active,.cat-link:hover { background:#ef4444!important;color:#fff!important; }
+
+/* ── Cart qty control ──────────────────────────────────────────────────── */
+.qty-ctrl { display:flex;align-items:center;gap:4px; }
+
+/* ── Stepper ───────────────────────────────────────────────────────────── */
+.stepper { padding:1rem 0; }
+.stepper-line { position:absolute;top:26px;left:5%;right:5%;height:3px;background:#e5e7eb;border-radius:4px;z-index:0; }
+.stepper-step { flex:1;position:relative;z-index:1; }
+.stepper-icon { width:44px;height:44px;border-radius:50%;background:#e5e7eb;color:#9ca3af;display:flex;align-items:center;justify-content:center;font-size:1.1rem;border:3px solid #e5e7eb;transition:all .3s; }
+.stepper-step.done .stepper-icon { background:#ef4444;color:#fff;border-color:#ef4444; }
+.stepper-label { font-size:.7rem;font-weight:600;color:#9ca3af;margin-top:.3rem; }
+.stepper-step.done .stepper-label { color:#ef4444; }
+
+/* ── Timeline ──────────────────────────────────────────────────────────── */
+.timeline-dot { width:10px;height:10px;border-radius:50%;background:#ef4444;flex-shrink:0; }
+
+/* ── Cards ─────────────────────────────────────────────────────────────── */
+.card { border-radius:14px!important; }
+
+/* ── Form focus ────────────────────────────────────────────────────────── */
+.form-control:focus { border-color:#ef4444!important;box-shadow:0 0 0 .2rem rgba(239,68,68,.15)!important; }
+
+@media (max-width:767px) {
+    .stepper-label { font-size:.6rem; }
+    .stepper-icon  { width:34px;height:34px;font-size:.9rem; }
+    .stepper-line  { top:20px; }
+}

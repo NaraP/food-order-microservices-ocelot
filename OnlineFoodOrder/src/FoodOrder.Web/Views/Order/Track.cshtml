@@ -1,0 +1,150 @@
+@model FoodOrder.Web.Models.OrderVm
+@{
+    ViewData["Title"] = "Track Order";
+    var delivery = ViewBag.Delivery as FoodOrder.Web.Models.DeliveryVm;
+
+    var steps      = new[] { "Pending","Confirmed","Preparing","OutForDelivery","Delivered" };
+    var stepLabels = new[] { "Placed","Confirmed","Preparing","On the Way","Delivered" };
+    var stepIcons  = new[] { "bi-clock","bi-check-circle","bi-fire","bi-bicycle","bi-house-check" };
+    var curIdx     = Array.IndexOf(steps, Model.Status);
+
+    var sc = Model.Status switch {
+        "Delivered"    => "success",
+        "Cancelled"    => "danger",
+        "OutForDelivery"=> "info",
+        "Preparing"    => "warning",
+        _ => "secondary"
+    };
+    var pc = Model.PaymentStatus switch { "Paid"=>"success","Failed"=>"danger",_=>"warning" };
+}
+
+<div class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold mb-0"><i class="bi bi-geo-alt me-2 text-danger"></i>Track Order</h2>
+            <p class="text-muted small mb-0">@Model.OrderNumber — @Model.RestaurantName</p>
+        </div>
+        <span class="badge fs-6 bg-@sc px-3">@Model.Status</span>
+    </div>
+
+    <div class="row g-4">
+        <!-- ── Progress + items ────────────────────────────────────────── -->
+        <div class="col-lg-8">
+            <!-- Stepper -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0 fw-bold">Order Progress</div>
+                <div class="card-body">
+                    @if (Model.Status == "Cancelled")
+                    {
+                        <div class="text-center py-3">
+                            <i class="bi bi-x-circle-fill text-danger display-4"></i>
+                            <p class="text-danger fw-semibold mt-2">Order Cancelled</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="stepper d-flex justify-content-between position-relative">
+                            <div class="stepper-line"></div>
+                            @for (int i = 0; i < steps.Length; i++)
+                            {
+                                var done = curIdx >= i;
+                                <div class="stepper-step text-center @(done?"done":"")">
+                                    <div class="stepper-icon mx-auto mb-1"><i class="bi @stepIcons[i]"></i></div>
+                                    <div class="stepper-label">@stepLabels[i]</div>
+                                </div>
+                            }
+                        </div>
+
+                        @if (delivery != null && Model.Status == "OutForDelivery")
+                        {
+                            <div class="alert alert-info d-flex align-items-center gap-3 mt-4">
+                                <div class="spinner-grow spinner-grow-sm text-info flex-shrink-0"></div>
+                                <div>
+                                    <strong>@delivery.DriverName</strong> is on the way!
+                                    <span class="text-muted small ms-2">@delivery.DriverPhone</span>
+                                    @if (!string.IsNullOrEmpty(delivery.Note))
+                                    { <p class="mb-0 small mt-1">@delivery.Note</p> }
+                                </div>
+                            </div>
+                        }
+
+                        @if (Model.Status == "Delivered")
+                        {
+                            <div class="alert alert-success text-center mt-4">
+                                <i class="bi bi-emoji-smile-fill fs-3 d-block mb-1"></i>
+                                <strong>Delivered at @Model.DeliveredAt?.ToString("hh:mm tt")</strong>
+                                <p class="mb-0 small">Enjoy your meal!</p>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Items -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 fw-bold">Items Ordered</div>
+                <div class="card-body p-0">
+                    @foreach (var item in Model.Items)
+                    {
+                        <div class="px-4 py-2 border-bottom d-flex justify-content-between align-items-center">
+                            <div class="small"><span class="fw-semibold">@item.Name</span> <span class="text-muted">× @item.Qty</span></div>
+                            <span class="small fw-bold">₹@item.TotalPrice.ToString("N0")</span>
+                        </div>
+                    }
+                    <div class="px-4 py-3 bg-light">
+                        <div class="d-flex justify-content-between small mb-1"><span>Subtotal</span><span>₹@Model.SubTotal.ToString("N0")</span></div>
+                        <div class="d-flex justify-content-between small mb-1"><span>Delivery</span><span>₹@Model.DeliveryFee.ToString("N0")</span></div>
+                        <div class="d-flex justify-content-between small mb-2"><span>Tax</span><span>₹@Model.Tax.ToString("N2")</span></div>
+                        <div class="d-flex justify-content-between fw-bold border-top pt-2">
+                            <span>Total</span><span style="color:#ef4444">₹@Model.TotalAmount.ToString("N2")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Side info ───────────────────────────────────────────────── -->
+        <div class="col-lg-4">
+            <!-- Delivery info -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-white border-0 fw-bold">Delivery Info</div>
+                <div class="card-body small">
+                    <div class="mb-2"><i class="bi bi-geo-alt text-danger me-2"></i><strong>Address:</strong><br/><span class="text-muted">@Model.DeliveryAddress</span></div>
+                    <div class="mb-2"><i class="bi bi-credit-card text-success me-2"></i><strong>Payment:</strong>
+                        <span class="badge bg-@pc ms-1">@Model.PaymentStatus</span> via @Model.PaymentMethod
+                    </div>
+                    <div><i class="bi bi-clock text-warning me-2"></i><strong>Ordered:</strong> @Model.CreatedAt.ToString("MMM dd, hh:mm tt")</div>
+                    @if (!string.IsNullOrEmpty(Model.Notes))
+                    { <div class="mt-2"><i class="bi bi-chat-text me-2 text-info"></i>@Model.Notes</div> }
+                </div>
+            </div>
+
+            <!-- Status history -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-white border-0 fw-bold">Timeline</div>
+                <div class="card-body p-0">
+                    @foreach (var h in Model.History.OrderByDescending(x => x.Timestamp))
+                    {
+                        <div class="px-3 py-2 border-bottom d-flex gap-2 align-items-start">
+                            <div class="timeline-dot mt-1"></div>
+                            <div>
+                                <div class="small fw-semibold">@h.Status</div>
+                                <div class="text-muted" style="font-size:.75rem">@h.Note</div>
+                                <div class="text-muted" style="font-size:.7rem">@h.Timestamp.ToString("hh:mm tt")</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @if (Model.Status is "Pending" or "Confirmed")
+            {
+                <form asp-action="Cancel" asp-route-id="@Model.Id" method="post"
+                      onsubmit="return confirm('Cancel this order?')">
+                    <input type="hidden" name="reason" value="Cancelled by customer"/>
+                    <button class="btn btn-outline-danger w-100"><i class="bi bi-x-circle me-2"></i>Cancel Order</button>
+                </form>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,93 @@
+@model FoodOrder.Web.Models.PaymentVm
+@{
+    ViewData["Title"] = "Payment Receipt";
+
+    // All variables pre-computed in top block — no @{ } inside @if/@else
+    var sc = "warning";
+    var mi = "bi-credit-card";
+
+    if (Model != null)
+    {
+        sc = Model.State switch
+        {
+            "Completed" => "success",
+            "Failed"    => "danger",
+            "Refunded"  => "secondary",
+            _           => "warning"
+        };
+
+        mi = Model.Method switch
+        {
+            "UPI"        => "bi-phone",
+            "Card"       => "bi-credit-card",
+            "NetBanking" => "bi-bank",
+            "Wallet"     => "bi-wallet2",
+            "COD"        => "bi-cash-coin",
+            _            => "bi-credit-card"
+        };
+    }
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="History">Payments</a></li>
+                    <li class="breadcrumb-item active">Receipt</li>
+                </ol>
+            </nav>
+            @if (Model == null)
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-receipt display-3 text-muted opacity-25"></i>
+                    <p class="text-muted mt-3">Payment not found.</p>
+                    <a asp-action="History" class="btn btn-danger mt-2">Back</a>
+                </div>
+            }
+            else
+            {
+                <div class="card border-0 shadow-sm overflow-hidden">
+                    <div class="p-4 text-center text-white"
+                         style="background:linear-gradient(135deg,#1a1a2e,#ef4444)">
+                        @if (Model.State == "Completed")
+                        {
+                            <i class="bi bi-check-circle-fill fs-1 mb-2 d-block"></i>
+                            <h5 class="fw-bold mb-1">Payment Successful</h5>
+                        }
+                        else if (Model.State == "Failed")
+                        {
+                            <i class="bi bi-x-circle-fill fs-1 mb-2 d-block"></i>
+                            <h5 class="fw-bold mb-1">Payment Failed</h5>
+                        }
+                        else
+                        {
+                            <i class="bi bi-clock-fill fs-1 mb-2 d-block text-warning"></i>
+                            <h5 class="fw-bold mb-1">@Model.State</h5>
+                        }
+                        <div class="display-6 fw-bold mt-2">₹@Model.Amount.ToString("N2")</div>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-sm align-middle mb-0">
+                            <tbody>
+                                <tr><td class="text-muted ps-4 fw-semibold" style="width:160px">Transaction</td><td class="pe-4"><code class="small">@Model.TransactionId</code></td></tr>
+                                <tr><td class="text-muted ps-4 fw-semibold">Method</td><td class="pe-4"><i class="bi @mi me-1 text-danger"></i>@Model.Method</td></tr>
+                                <tr><td class="text-muted ps-4 fw-semibold">Status</td><td class="pe-4"><span class="badge bg-@sc">@Model.State</span></td></tr>
+                                <tr><td class="text-muted ps-4 fw-semibold">Date</td><td class="pe-4 small">@Model.CreatedAt.ToString("MMM dd, yyyy hh:mm tt")</td></tr>
+                                @if (Model.CompletedAt.HasValue)
+                                {
+                                    <tr><td class="text-muted ps-4 fw-semibold">Completed</td><td class="pe-4 small">@Model.CompletedAt.Value.ToString("MMM dd, yyyy hh:mm tt")</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer bg-white d-flex gap-2">
+                        <a asp-controller="Order" asp-action="Track" asp-route-id="@Model.OrderId"
+                           class="btn btn-danger flex-fill"><i class="bi bi-geo-alt me-2"></i>Track Order</a>
+                        <a asp-action="History" class="btn btn-outline-secondary flex-fill"><i class="bi bi-arrow-left me-2"></i>Back</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,200 @@
+@model FoodOrder.Web.Models.RestaurantVm
+@{
+    ViewData["Title"] = Model.Name;
+    var cart = ViewBag.Cart as FoodOrder.Web.Models.CartVm ?? new();
+}
+
+<!-- ── Restaurant header ──────────────────────────────────────────────── -->
+<div class="resto-header py-4"
+     style="background:linear-gradient(135deg,@(Model.Cuisine=="South Indian"?"#f97316,#ef4444":Model.Cuisine=="Italian"?"#10b981,#059669":"#8b5cf6,#7c3aed"))">
+    <div class="container text-white">
+        <nav aria-label="breadcrumb" class="mb-2">
+            <ol class="breadcrumb mb-0" style="--bs-breadcrumb-divider-color:rgba(255,255,255,.5)">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-white opacity-75">Restaurants</a></li>
+                <li class="breadcrumb-item active text-white">@Model.Name</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            <div class="resto-logo">@Model.Name[0]</div>
+            <div>
+                <h2 class="fw-bold mb-1">@Model.Name</h2>
+                <p class="opacity-75 mb-2">@Model.Description</p>
+                <div class="d-flex flex-wrap gap-3 small">
+                    <span><i class="bi bi-star-fill text-warning me-1"></i>@Model.Rating</span>
+                    <span><i class="bi bi-clock me-1"></i>@Model.DeliveryMins min</span>
+                    <span><i class="bi bi-bicycle me-1"></i>₹@Model.DeliveryFee delivery</span>
+                    <span><i class="bi bi-bag-check me-1"></i>₹@Model.MinOrder min order</span>
+                    @if (Model.IsOpen)
+                    { <span class="badge bg-success"><i class="bi bi-circle-fill me-1" style="font-size:.5rem"></i>Open</span> }
+                    else
+                    { <span class="badge bg-danger">Closed</span> }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div class="row g-4">
+        <!-- ── Menu ─────────────────────────────────────────────────── -->
+        <div class="col-lg-8">
+            <!-- Category tabs -->
+            @if (Model.Categories.Any())
+            {
+                <ul class="nav nav-pills mb-4 gap-2 flex-wrap" id="catNav">
+                    @foreach (var cat in Model.Categories)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link cat-link px-4" href="#cat-@cat.Id.ToString("N")">@cat.Name</a>
+                        </li>
+                    }
+                </ul>
+            }
+
+            @foreach (var cat in Model.Categories)
+            {
+                <div class="mb-5" id="cat-@cat.Id.ToString("N")">
+                    <h5 class="fw-bold border-bottom pb-2 mb-3">@cat.Name</h5>
+                    <div class="row g-3">
+                        @foreach (var item in cat.Items)
+                        {
+                            var iid = item.Id.ToString("N");
+                            <div class="col-md-6">
+                                <div class="menu-card border rounded-3 p-3 h-100">
+                                    <div class="d-flex gap-2">
+                                        <div class="veg-dot @(item.IsVeg ? "veg":"nonveg") mt-1 flex-shrink-0"></div>
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                                <span class="fw-semibold small">@item.Name</span>
+                                                @if (item.IsPopular) { <span class="badge bg-warning text-dark" style="font-size:.6rem">★ Popular</span> }
+                                            </div>
+                                            <p class="text-muted mb-2" style="font-size:.8rem">@item.Description</p>
+                                            <div class="d-flex gap-1 flex-wrap mb-2">
+                                                @foreach (var tag in item.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                                                { <span class="tag-pill">@tag.Trim()</span> }
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="fw-bold" style="color:#ef4444">₹@item.Price</span>
+                                                @if (!item.IsAvailable)
+                                                {
+                                                    <span class="badge bg-secondary">Unavailable</span>
+                                                }
+                                                else
+                                                {
+                                                    <div class="qty-ctrl d-none" id="qc-@iid">
+                                                        <button class="btn btn-sm btn-outline-danger rounded-circle"
+                                                                onclick="changeQty('@item.Id','@Model.Id','@Model.Name',@Model.DeliveryFee,'@item.Name',@item.Price,@item.IsVeg.ToString().ToLower(),-1)">
+                                                            <i class="bi bi-dash"></i>
+                                                        </button>
+                                                        <span id="qty-@iid" class="fw-bold px-1">0</span>
+                                                        <button class="btn btn-sm btn-danger rounded-circle"
+                                                                onclick="changeQty('@item.Id','@Model.Id','@Model.Name',@Model.DeliveryFee,'@item.Name',@item.Price,@item.IsVeg.ToString().ToLower(),1)">
+                                                            <i class="bi bi-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                    <button class="btn btn-sm btn-outline-danger" id="add-@iid"
+                                                            onclick="addItem('@item.Id','@Model.Id','@Model.Name',@Model.DeliveryFee,'@item.Name',@item.Price,@item.IsVeg.ToString().ToLower())">
+                                                        <i class="bi bi-plus me-1"></i>Add
+                                                    </button>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- ── Cart Sidebar ──────────────────────────────────────────── -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm sticky-top" style="top:76px" id="cartWidget">
+                <div class="card-header bg-white fw-bold d-flex justify-content-between border-0">
+                    <span><i class="bi bi-basket2 me-2 text-danger"></i>Cart</span>
+                    <span class="badge bg-danger" id="cartCount">@cart.Count</span>
+                </div>
+                <div id="cartBody">
+                    <div class="text-center py-4 text-muted" id="emptyMsg"
+                         style="@(cart.Items.Any() ? "display:none" : "")">
+                        <i class="bi bi-basket2 display-6 opacity-25"></i>
+                        <p class="small mt-2">Add items to get started</p>
+                    </div>
+                    <div id="cartLines">
+                        @foreach (var ci in cart.Items)
+                        {
+                            <div class="px-3 py-2 border-bottom d-flex align-items-center gap-2" id="cl-@ci.MenuItemId.ToString("N")">
+                                <div class="flex-grow-1 small"><span class="fw-semibold">@ci.Name</span> × @ci.Qty</div>
+                                <span class="small fw-bold">₹@ci.LineTotal.ToString("N0")</span>
+                            </div>
+                        }
+                    </div>
+                    <div id="cartSummary" class="p-3 border-top bg-light"
+                         style="@(!cart.Items.Any() ? "display:none" : "")">
+                        <div class="d-flex justify-content-between small mb-1"><span>Subtotal</span><span id="sub">₹@cart.SubTotal.ToString("N0")</span></div>
+                        <div class="d-flex justify-content-between small mb-1"><span>Delivery</span><span>₹@cart.DeliveryFee.ToString("N0")</span></div>
+                        <div class="d-flex justify-content-between small mb-2"><span>Tax 5%</span><span id="tax">₹@cart.Tax.ToString("N0")</span></div>
+                        <div class="d-flex justify-content-between fw-bold border-top pt-2">
+                            <span>Total</span><span id="total" style="color:#ef4444">₹@cart.Total.ToString("N0")</span>
+                        </div>
+                        <a asp-controller="Order" asp-action="Checkout"
+                           class="btn btn-danger w-100 mt-3 fw-semibold">
+                            <i class="bi bi-bag-check me-2"></i>Checkout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function addItem(iid, rid, rname, dfee, name, price, isVeg) {
+    post('/Restaurant/AddToCart', {restaurantId:rid,restaurantName:rname,deliveryFee:dfee,itemId:iid,name,price,isVeg})
+    .then(d => {
+        if (!d.ok) return;
+        document.getElementById('add-'+iid.replaceAll('-','')).classList.add('d-none');
+        const qc = document.getElementById('qc-'+iid.replaceAll('-',''));
+        qc.classList.remove('d-none');
+        document.getElementById('qty-'+iid.replaceAll('-','')).textContent = '1';
+        updateBadge(d.count); location.reload();
+    });
+}
+
+function changeQty(iid, rid, rname, dfee, name, price, isVeg, delta) {
+    const qtyEl = document.getElementById('qty-'+iid.replaceAll('-',''));
+    const cur = parseInt(qtyEl?.textContent||'0');
+    const nq  = cur + delta;
+    if (nq <= 0) {
+        post('/Restaurant/RemoveFromCart', {itemId:iid}).then(d => { updateBadge(d.count); location.reload(); });
+    } else {
+        post('/Restaurant/UpdateQty', {itemId:iid, qty:nq}).then(d => {
+            if(qtyEl) qtyEl.textContent = nq; updateBadge(d.count); location.reload();
+        });
+    }
+}
+
+function post(url, data) {
+    return fetch(url, {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body: new URLSearchParams(data).toString()}).then(r=>r.json());
+}
+
+function updateBadge(n) {
+    const b = document.getElementById('cartBadge');
+    if (b) { b.textContent = n; b.style.display = n > 0 ? '' : 'none'; }
+}
+
+// Category tab scroll
+document.querySelectorAll('.cat-link').forEach(a => {
+    a.addEventListener('click', e => {
+        e.preventDefault();
+        document.querySelector(a.getAttribute('href'))?.scrollIntoView({behavior:'smooth'});
+        document.querySelectorAll('.cat-link').forEach(x=>x.classList.remove('active'));
+        a.classList.add('active');
+    });
+});
+if (document.querySelector('.cat-link')) document.querySelector('.cat-link').classList.add('active');
+</script>
+}

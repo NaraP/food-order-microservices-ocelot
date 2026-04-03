@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] – QuickBite</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+@{
+    var user      = ViewBag.User as FoodOrder.Web.Models.UserSession;
+    var cartSvc   = Context.RequestServices.GetService<FoodOrder.Web.Services.CartService>();
+    var cartCount = cartSvc?.Count ?? 0;
+}
+
+<!-- ── Navbar ─────────────────────────────────────────────────────────── -->
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top" id="topNav">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" asp-controller="Home" asp-action="Index">
+            <i class="bi bi-basket2-fill text-warning me-2"></i>QuickBite
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="nav">
+            <ul class="navbar-nav me-auto">
+                @if (user != null)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Order" asp-action="MyOrders">
+                            <i class="bi bi-bag me-1"></i>My Orders
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Payment" asp-action="History">
+                            <i class="bi bi-credit-card me-1"></i>Payments
+                        </a>
+                    </li>
+                }
+            </ul>
+            <div class="d-flex align-items-center gap-3">
+                @if (user != null)
+                {
+                    <!-- Cart button -->
+                    <a asp-controller="Order" asp-action="Checkout"
+                       class="btn btn-outline-warning btn-sm position-relative" id="cartBtn">
+                        <i class="bi bi-basket2"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                              id="cartBadge" style="@(cartCount == 0 ? "display:none" : "")">@cartCount</span>
+                    </a>
+                    <!-- User dropdown -->
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-light dropdown-toggle d-flex align-items-center gap-2"
+                                data-bs-toggle="dropdown">
+                            <div class="avatar-xs">@user.FullName[0]</div>
+                            <span class="d-none d-lg-inline">@user.FullName.Split(' ')[0]</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                            <li><h6 class="dropdown-header small">@user.Email</h6></li>
+                            <li><span class="dropdown-item-text"><span class="badge bg-primary">@user.Role</span></span></li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li><a class="dropdown-item" asp-controller="Profile" asp-action="Index"><i class="bi bi-person-circle me-2"></i>My Profile</a></li>
+                            <li><a class="dropdown-item" asp-controller="Order" asp-action="MyOrders"><i class="bi bi-bag me-2"></i>My Orders</a></li>
+                            <li><a class="dropdown-item" asp-controller="Payment" asp-action="History"><i class="bi bi-credit-card me-2"></i>Payments</a></li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <form asp-controller="Auth" asp-action="Logout" method="post">
+                                    <button class="dropdown-item text-danger">
+                                        <i class="bi bi-box-arrow-right me-2"></i>Sign Out
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <a asp-controller="Auth" asp-action="Login"    class="btn btn-outline-light btn-sm">Sign In</a>
+                    <a asp-controller="Auth" asp-action="Register" class="btn btn-warning btn-sm fw-semibold">Join Free</a>
+                }
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- ── Flash messages ─────────────────────────────────────────────────── -->
+<div class="container mt-3">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-3" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-3" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+</div>
+
+<!-- ── Page body ──────────────────────────────────────────────────────── -->
+@RenderBody()
+
+<!-- ── Footer ────────────────────────────────────────────────────────── -->
+<footer class="mt-5 py-4" style="background:#1a1a2e">
+    <div class="container text-center">
+        <div class="mb-1 fw-bold text-white">
+            <i class="bi bi-basket2-fill text-warning me-2"></i>QuickBite
+        </div>
+        <div class="small text-muted">
+            .NET 9 Microservices &bull; Ocelot Gateway &bull; EF Core &bull; SQL Server
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@RenderSection("Scripts", required: false)
+</body>
+</html>

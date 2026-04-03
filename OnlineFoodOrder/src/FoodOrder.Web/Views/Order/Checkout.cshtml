@@ -1,0 +1,77 @@
+@* ── Checkout ─────────────────────────────────────────────────────────── *@
+@model FoodOrder.Web.Models.CheckoutVm
+@{ ViewData["Title"] = "Checkout"; }
+
+<div class="container py-4">
+    <h2 class="fw-bold mb-4"><i class="bi bi-bag-check me-2 text-danger"></i>Checkout</h2>
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 fw-bold">Delivery & Payment</div>
+                <div class="card-body">
+                    <form asp-action="PlaceOrder" method="post" id="coForm">
+                        <div class="mb-3">
+                            <label asp-for="DeliveryAddress" class="form-label fw-semibold">Delivery Address</label>
+                            <textarea asp-for="DeliveryAddress" class="form-control" rows="2" placeholder="Full delivery address"></textarea>
+                            <span asp-validation-for="DeliveryAddress" class="text-danger small"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Payment Method</label>
+                            <div class="row g-2">
+                                @foreach (var (m, icon, label) in new[]{("UPI","bi-phone","UPI"),("Card","bi-credit-card","Card"),("NetBanking","bi-bank","Net Banking"),("Wallet","bi-wallet2","Wallet"),("COD","bi-cash-coin","Cash on Delivery")})
+                                {
+                                    <div class="col-6">
+                                        <input type="radio" class="btn-check" name="PaymentMethod" id="pm-@m" value="@m"
+                                               @(Model.PaymentMethod == m ? "checked" : "")/>
+                                        <label class="btn btn-outline-secondary w-100 text-start py-2 px-3" for="pm-@m">
+                                            <i class="bi @icon me-2 text-danger"></i><span class="small">@label</span>
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Notes" class="form-label fw-semibold">Notes <span class="text-muted fw-normal">(optional)</span></label>
+                            <textarea asp-for="Notes" class="form-control" rows="2" placeholder="Allergy info, gate code…"></textarea>
+                        </div>
+                        <button type="submit" id="placeBtn" class="btn btn-danger btn-lg w-100 fw-semibold">
+                            <i class="bi bi-bag-check me-2"></i>Place Order — ₹@Model.Cart.Total.ToString("N2")
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm sticky-top" style="top:76px">
+                <div class="card-header bg-white border-0 fw-bold"><i class="bi bi-shop me-2 text-danger"></i>@Model.Cart.RestaurantName</div>
+                <div class="card-body p-0">
+                    @foreach (var item in Model.Cart.Items)
+                    {
+                        <div class="px-3 py-2 border-bottom d-flex align-items-center gap-2">
+                            <div class="veg-dot @(item.IsVeg?"veg":"nonveg") flex-shrink-0"></div>
+                            <div class="flex-grow-1 small"><span class="fw-semibold">@item.Name</span> × @item.Qty</div>
+                            <span class="small fw-bold">₹@item.LineTotal.ToString("N0")</span>
+                        </div>
+                    }
+                    <div class="p-3 bg-light">
+                        <div class="d-flex justify-content-between small mb-1"><span>Subtotal</span><span>₹@Model.Cart.SubTotal.ToString("N0")</span></div>
+                        <div class="d-flex justify-content-between small mb-1"><span>Delivery</span><span>₹@Model.Cart.DeliveryFee.ToString("N0")</span></div>
+                        <div class="d-flex justify-content-between small mb-2"><span>Tax 5%</span><span>₹@Model.Cart.Tax.ToString("N2")</span></div>
+                        <div class="d-flex justify-content-between fw-bold border-top pt-2">
+                            <span>Total</span><span style="color:#ef4444">₹@Model.Cart.Total.ToString("N2")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+<script>
+document.getElementById('coForm').addEventListener('submit', () => {
+    const b = document.getElementById('placeBtn');
+    b.disabled = true;
+    b.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Placing…';
+});
+</script>
+}
