@@ -21,6 +21,9 @@ OnlineFoodOrder/
 └── OnlineFoodOrder.sln
 ```
 
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/6d721394-3bc8-4882-be26-174bef66dd7e" />
+
+
 ---
 
 ## 🗄 Databases  (one per service — true isolation)
