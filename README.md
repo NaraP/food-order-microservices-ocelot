@@ -1,6 +1,8 @@
 # 🍔 QuickBite – Online Food Ordering System
 ### .NET 9 · Clean Microservices · Ocelot API Gateway · EF Core · SQL Server
 
+Short description: 
+The Food Order Online system is a web-based application that allows users to browse restaurants, view menus, place orders, and make payments online. It also provides an admin interface to manage menus, orders, and customers.
 ---
 
 ## 🏗 Architecture
